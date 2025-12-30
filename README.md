@@ -1,84 +1,39 @@
-### Project: DevOps Platform Capstone
+# DevOps Platform Capstone Project 
 
-##  Project Purpose
 
-This project demonstrates the design and implementation of a **production-grade DevOps platform** using industry-standard tools and best practices.
 
-The goal is to provision secure infrastructure, configure services automatically, and implement a complete CI/CD pipeline with quality gates, artifact management, and containerized deployments.
+## Project Purpose
 
-------
+The goal of this project is to build, break, and fix a complete DevOps platform using a **"No-GUI" approach**. By utilizing Infrastructure as Code (IaC) and Configuration Management, we ensure that the entire environment—from networking to the CI/CD pipeline—is **100% reproducible**, consistent, and documented.
 
-##  Toolchain Overview
 
-| Tool      | Purpose                              |
-| --------- | ------------------------------------ |
-| Terraform | Infrastructure provisioning (IaC)    |
-| Ansible   | Configuration management             |
-| Jenkins   | CI/CD orchestration                  |
-| SonarQube | Static code analysis & quality gates |
-| Nexus     | Artifact repository                  |
-| Docker    | Application containerization         |
-| GitHub    | Source code & version control        |
+## High-Level Architecture
 
-------
+This platform follows a modular design to ensure a clear **separation of concerns**:
 
-##  High-Level Architecture
+1. **Infrastructure Layer**: Isolated networking and dedicated compute instances provisioned via Terraform.
+2. **Configuration Layer**: Automated software installation and system hardening using Ansible roles.
+3. **Pipeline Layer**: A Jenkins-driven CI/CD process that integrates quality gates, artifact management, and containerization.
+4. **Observability Layer**: End-to-end traceability from the final Docker image back to the specific Git commit.
 
-**Flow Overview:**
+## Toolchain Overview 
 
-1. Terraform provisions:
-   - Network
-   - Security
-   - Compute resources
-2. Ansible installs and configures:
-   - Jenkins
-   - SonarQube
-   - Nexus
-   - Docker
-3. Jenkins pipeline:
-   - Builds application
-   - Runs code quality checks (SonarQube)
-   - Publishes artifacts (Nexus)
-   - Builds Docker image
-   - Deploys application
+| Function | Tool |
+| --- | --- |
+| **Infrastructure Provisioning** | **Terraform** (Remote backend with state locking) |
+| **Configuration Management** | **Ansible** (Dynamic inventory & idempotent roles) |
+| **CI/CD Orchestration** | **Jenkins** (Declarative pipelines) |
+| **Static Code Analysis** | **SonarQube** (Quality Gate enforcement) |
+| **Artifact Repository** | **Nexus** (Versioned storage) |
+| **Containerization** | **Docker** (Multi-stage builds & registry) |
+| **Build Tool** | **Maven** (Application lifecycle) |
 
-------
+## Repository Structure 
 
-##  Repository Structure & Ownership
+- `terraform/`: Infrastructure modules (Network, Security, Compute).
+- `ansible/`: Playbooks and roles for server configuration.
+- `jenkins/`: Jenkinsfile and pipeline configuration.
+- `app/`: Application source code.
+- `docs/`: Proof of work, screenshots, and technical defense.
 
-```
-terraform/  → Infrastructure provisioning only
-ansible/    → Software installation & configuration
-jenkins/    → CI/CD pipelines & shared libraries
-app/        → Application source code
-docs/       → Architecture diagrams & documentation
-```
-
-Each directory is owned independently to enforce **clear separation of concerns**.
-
-------
-
-##  Project Phases
-
-- **Phase 0** — Repository standards & design
-- **Phase 1** — Infrastructure provisioning (Terraform)
-- **Phase 2** — Configuration management (Ansible)
-- **Phase 3** — CI/CD pipeline (Jenkins)
-- **Phase 4** — Quality, artifacts & containerization
-- **Phase 5** — Failure injection, hardening & optimization
-
-------
-
-##  Design Principles
-
-- Infrastructure as Code
-- Least privilege security
-- Modular & reusable components
-- Environment isolation
-- Automation over manual changes
-
-------
-
-##  Status
-
- Phase 0 completed — Repository standards established.
+---
