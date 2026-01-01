@@ -1,0 +1,25 @@
+# Use the official AWS EC2 inventory plugin 
+plugin: aws_ec2
+
+# Limit the search to specific regions to speed up the inventory refresh 
+# and avoid permission errors in unauthorized regions
+regions:
+  - us-east-1
+
+
+
+# DYNAMIC GROUPING:
+# Automatically categorizes instances into Ansible groups based on their "Name" tag.
+# Example: An instance tagged "Name: Jenkins_server" becomes a member of the group 'tag_Jenkins_server'
+keyed_groups:
+  - key: tags.Name
+    prefix: tag
+    separator: _
+
+
+
+# VARIABLE OVERRIDES:
+# Define how Ansible should interact with the discovered instances.
+compose:
+  # Forces Ansible to use the Public IP for SSH connections.
+  ansible_host: public_ip_address

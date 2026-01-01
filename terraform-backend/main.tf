@@ -1,6 +1,6 @@
 # S3 Bucket for State
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "shistrangerthings" # Replace this
+  bucket = "shistrangerthingsfrfrfrfr" # Replace this
 
   # Prevent accidental deletion
   lifecycle {
@@ -17,7 +17,7 @@ resource "aws_s3_bucket_versioning" "enabled" {
 
 # DynamoDB for Locking
 resource "aws_dynamodb_table" "terraform_locks" {
-  name         = "ashustatelocky" # Replace this
+  name         = "ashustatelockykatta" # Replace this
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 

@@ -1,0 +1,5 @@
+- name: configure jenkins server
+  hosts: tag_Jenkins_Server
+  become: true
+  roles:
+    - jenkins

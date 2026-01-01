@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
-    bucket         = "shistrangerthings" 
+    bucket         = "shistrangerthingsfrfrfrfr" 
     key            = "devops-platform/terraform.tfstate"
     region         = "us-east-1"                   
-    dynamodb_table = "ashustatelocky"        
+    dynamodb_table = "ashustatelockykatta"        
     encrypt        = true                          
   }
 }

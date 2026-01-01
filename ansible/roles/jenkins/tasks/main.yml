@@ -1,0 +1,64 @@
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+
+- name: Install OpenJDK 17
+  apt:
+    name: openjdk-17-jdk
+    state: present
+
+- name: Download Jenkins GPG key
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    dest: /usr/share/keyrings/jenkins-keyring.asc
+
+- name: Add Jenkins apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+    state: present
+    filename: jenkins
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: present
+
+- name: Start and enable Jenkins
+  service:
+    name: jenkins
+    state: started
+    enabled: yes
+
+- name: Read Jenkins admin password
+  ansible.builtin.slurp:
+    src: /var/lib/jenkins/secrets/initialAdminPassword
+  register: admin_password_raw
+
+- name: Set a passwd as a fact
+  set_fact:
+    jenkins_admin_password: "{{ admin_password_raw['content'] | b64decode | trim }}"
+
+- name: Print Jenkins admin password
+  ansible.builtin.debug:
+    msg: "The initial admin password is: {{ jenkins_admin_password }}"
+
+- name: Install python-jenkins library
+  apt:
+    name: python3-jenkins
+    state: present
+
+- name: install jenkins plugins
+  community.general.jenkins_plugin:
+    name: "{{ item }}"
+    url_username: admin
+    url_password: "{{ jenkins_admin_password }}"
+    state: present
+    timeout: 60
+  loop:
+    - git
+    - workflow-aggregator
+    - docker-workflow
+    - sonarqube
+    - nexus-artifact-uploader
+  notify: Restart Jenkins
