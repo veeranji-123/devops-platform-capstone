@@ -47,6 +47,12 @@ resource "aws_security_group" "sonarqube_sg" {
     cidr_blocks = ["0.0.0.0/0"] 
   }
 
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] 
+  }
   egress {
     from_port   = 0
     to_port     = 0
@@ -66,7 +72,12 @@ resource "aws_security_group" "nexus_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] 
   }
-
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] 
+  }
   egress {
     from_port   = 0
     to_port     = 0
@@ -86,7 +97,12 @@ resource "aws_security_group" "docker_sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.jenkins_sg.id] 
   }
-
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] 
+  }
   egress {
     from_port   = 0
     to_port     = 0

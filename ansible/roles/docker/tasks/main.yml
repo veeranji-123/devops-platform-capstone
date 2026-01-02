@@ -1,0 +1,70 @@
+- name: update the apt cache
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+
+# install required pckgs for docker installation
+- name: Install required system packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - virtualenv
+      - python3-setuptools
+    state: latest
+    update_cache: true
+
+- name: Add docker gpg apt key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu noble stable"
+    state: present
+    filename: docker
+
+- name: update apt and install docker-ce
+  apt:
+    name: docker-ce
+    state: latest
+    update_cache: true
+
+- name: Install docker module for python via apt
+  ansible.builtin.apt:
+    name: python3-docker
+    state: present
+    update_cache: true
+
+- name: Start and enable docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: add ubuntu user to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: create override directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    mode: "0755"
+
+- name: Add the Configuration File
+  ansible.builtin.copy:
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
+    dest: /etc/systemd/system/docker.service.d/override.conf
+
+  notify:
+    - Reload systemd
+    - Restart docker

@@ -1,3 +1,21 @@
+- name: configure docker host server
+  hosts: tag_Docker_Host
+  become: true
+  roles:
+    - docker
+
+- name: configure sonarqube server
+  hosts: tag_SonarQube_Server
+  become: true
+  roles:
+    - sonarqube
+
+- name: configure nexus server
+  hosts: tag_Nexus_Server
+  become: true
+  roles:
+    - nexus
+
 - name: configure jenkins server
   hosts: tag_Jenkins_Server
   become: true

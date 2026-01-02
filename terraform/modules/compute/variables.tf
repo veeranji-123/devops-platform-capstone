@@ -18,3 +18,13 @@ variable "nexus_sg_id" {
 variable "docker_sg_id" {
   type = string
 }
+
+variable "key_name" {
+  description = "Name of the SSH key pair"
+  type        = string
+}
+
+variable "ami_id" {
+  description = "ami id to use" 
+  type = string
+}

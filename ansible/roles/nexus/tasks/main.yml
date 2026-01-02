@@ -1,0 +1,131 @@
+- name: update the apt cache
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+
+# install required pckgs for docker installation
+- name: Install required system packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - virtualenv
+      - python3-setuptools
+    state: latest
+    update_cache: true
+
+- name: Add docker gpg apt key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu noble stable"
+    state: present
+    filename: docker
+
+- name: update apt and install docker-ce
+  apt:
+    name: docker-ce
+    state: latest
+    update_cache: true
+
+- name: Install docker module for python via apt
+  ansible.builtin.apt:
+    name: python3-docker
+    state: present
+    update_cache: true
+
+- name: Start and enable docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+# - name: Remove existing nexus container
+#   community.docker.docker_container:
+#     name: nexus
+#     state: absent
+
+- name: pull and start nexus container
+  community.docker.docker_container:
+    name: nexus
+    image: sonatype/nexus3
+    state: started
+    restart_policy: always
+    published_ports:
+      - "8081:8081"
+
+- name: Wait for Nexus to come online
+  ansible.builtin.wait_for:
+    port: 8081
+    delay: 30
+    timeout: 300
+
+- name: Check if initial password file exists
+  community.docker.docker_container_exec:
+    container: nexus
+    command: test -f /nexus-data/admin.password
+  register: file_check
+  until: file_check.rc == 0 or file_check.rc == 1
+  retries: 10
+  delay: 10
+  failed_when: false
+
+- name: get initial nexus admin passwd from inside container
+  community.docker.docker_container_exec:
+    container: nexus
+    command: cat /nexus-data/admin.password
+  register: nexus_admin_password_raw
+  until: nexus_admin_password_raw.rc == 0
+  retries: 10
+  delay: 20 # Waits 20 seconds between each of the 10 tries
+  when: file_check.rc == 0
+
+- name: set a passwd as a fact
+  set_fact:
+    nexus_admin_password: "{{ nexus_admin_password_raw.stdout | trim }}"
+  when: file_check.rc == 0
+
+- name: print nexus admin password
+  ansible.builtin.debug:
+    msg: "The initial nexus admin password is: {{ nexus_admin_password }} "
+  when: file_check.rc == 0
+
+- name: change nexus admin password (if still default)
+  ansible.builtin.uri:
+    url: "http://localhost:8081/service/rest/v1/security/users/admin/change-password"
+    method: PUT
+    user: admin
+    password: "{{ nexus_admin_password }}"
+    body: "{{ nexus_new_admin_password }}" # Now using the Vault variable
+    body_format: raw # Ensures the body is sent as text
+    headers:
+      Content-Type: "text/plain"
+    force_basic_auth: yes
+    status_code: [204, 401]
+  when: file_check.rc == 0
+
+- name: create nexus hosted repo
+  ansible.builtin.uri:
+    url: "http://localhost:8081/service/rest/v1/repositories/maven/hosted"
+    method: POST
+    user: admin
+    password: "{{ nexus_new_admin_password }}" # Now using the Vault variable
+    body_format: json
+    body:
+      name: "maven-releases"
+      online: true
+      storage:
+        blobStoreName: "default"
+        strictContentTypeValidation: true
+        writePolicy: "allow_once"
+      maven:
+        versionPolicy: "RELEASE"
+        layoutPolicy: "STRICT"
+    force_basic_auth: yes
+    status_code: [201, 400] # 201 = Created, 400 = Already exists
+  when: file_check.rc == 0

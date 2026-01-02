@@ -37,3 +37,28 @@ This platform follows a modular design to ensure a clear **separation of concern
 - `docs/`: Proof of work, screenshots, and technical defense.
 
 ---
+
+
+
+
+for setting up Ansible-Ec2 plugin Configuration in local machine (windows WSL or Ubuntu)
+
+install python pip3 - `sudo apt install python3-pip`
+
+
+install Ansible -  `pip3 install ansible`
+
+configure aws cli   --  `aws configure` (access key & secretkey)
+
+
+`pip3 install botocore --break-system-package`
+`pip3 install boto3 --break-system-package`
+
+
+
+
+for ansible vault:
+
+`EDITOR=nano ansible-vault create group_vars/all/vault.yml`
+
+`ansible-playbook -i inventory/my_aws_ec2.yml site.yml --ask-vault-pass`
